@@ -1,0 +1,29 @@
+
+{
+  "name": "Codespace - Python 3.11.9",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11.9",
+      "installTools": true
+    }
+  },
+  "postCreateCommand": "python -V && pip -V && pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.analysis.typeCheckingMode": "basic"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "portsAttributes": {
+    "8000": { "label": "app", "onAutoForward": "notify" }
+  }
+}
+
