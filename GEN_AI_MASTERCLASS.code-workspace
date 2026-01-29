@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "../../NLP_training"
+		},
+		{
+			"path": "../../genai-engineer-situational-training"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"name": "GEN_AI_Masterclass",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
