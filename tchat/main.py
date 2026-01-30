@@ -2,7 +2,7 @@ import os
 from langchain_openai import ChatOpenAI    # In order to distinguish a chat model from a completion one used before 
 from langchain.chains import LLMChain      # with LLMChains
 from langchain.prompts import MessagesPlaceholder, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.memory import ConversationBufferMemory, FileChatMessageHistory
+from langchain.memory import ConversationBufferMemory, ConversationSummaryMemory, FileChatMessageHistory
 from dotenv import load_dotenv
 
 # Load API KEY
@@ -17,11 +17,13 @@ api_key = os.getenv('COURSE_KEY')
 
 # Getting the model
 chat = ChatOpenAI(
-    api_key=api_key
+    api_key=api_key,
+    verbose=True          # show summary
 )
 
 # Setting up memory
-memory = ConversationBufferMemory(
+# 1. Total memory - stored in .json file
+memory_buffer = ConversationBufferMemory(
     chat_memory=FileChatMessageHistory('messages.json'),  # Storing the history of messages to not lose
                                                           # memory after quitting the program
     memory_key='messages',
@@ -30,6 +32,15 @@ memory = ConversationBufferMemory(
                          # Instead, it's these kind of fancy objects that are called HumanMessages, AIMessages,
                          # SystemMessages and so on. Stored intelligently.
 )
+
+# 2. Summary memory - Langchain built-in method to store a summary of conversations (Human and AI)
+#    summarized by another internal PromptTemplate
+memory_summary = ConversationSummaryMemory(
+    memory_key='messages',
+    return_messages=True,
+    llm=chat
+)
+
 
 # Getting the message
 prompt = ChatPromptTemplate(
@@ -46,7 +57,8 @@ prompt = ChatPromptTemplate(
 chain = LLMChain(
     llm=chat,
     prompt=prompt,
-    memory=memory
+    memory=memory_summary,   # or memory_buffer
+    verbose=True             # show summary 
 )
 
 while True:
