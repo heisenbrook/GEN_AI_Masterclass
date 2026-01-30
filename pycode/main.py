@@ -8,13 +8,13 @@ from argparse import ArgumentParser
 
 
 # Load API KEY
-load_dotenv('.env', override=True)
+load_dotenv('/workspaces/GEN_AI_Masterclass/.env', override=True)
 print('COURSE_KEY present?', os.getenv('COURSE_KEY') is not None)
 
 api_key = os.getenv('COURSE_KEY')
 
 # ========================
-# BASIC USAGE WITH API KEY
+# 1. BASIC USAGE WITH API KEY
 # ========================
 
 # Create LLM
@@ -78,7 +78,7 @@ result = code_chain({
     'task': args.task
 })
 
-print(result['text'])
+print(result['code'])
 
 # Let's add a second chain 
 
