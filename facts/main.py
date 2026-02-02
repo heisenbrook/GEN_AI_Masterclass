@@ -2,10 +2,7 @@ import os
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
-from langchain_openai import ChatOpenAI  
-from langchain.chains import LLMChain      
-from langchain.prompts import MessagesPlaceholder, HumanMessagePromptTemplate, ChatPromptTemplate
-from langchain.memory import ConversationBufferMemory, ConversationSummaryMemory, FileChatMessageHistory
+from langchain.vectorstores.chroma import Chroma
 from dotenv import load_dotenv
 
 # Load API KEY
@@ -13,6 +10,13 @@ load_dotenv('/workspaces/GEN_AI_Masterclass/.env', override=True)
 print('COURSE_KEY present?', os.getenv('COURSE_KEY') is not None)
 
 api_key = os.getenv('COURSE_KEY')
+
+# Embeddings
+# ===================
+
+embeddings = OpenAIEmbeddings(
+    api_key=api_key
+)
 
 # Initialize Text-splitter
 text_splitter = CharacterTextSplitter(
@@ -25,14 +29,25 @@ text_splitter = CharacterTextSplitter(
 loader = TextLoader('facts.txt')
 docs = loader.load_and_split()
 
-for doc in docs:
-    print(doc.page_content)
-    print('\n')
-
-# Embeddings
-# ===================
-
-embeddings = OpenAIEmbeddings(
-    api_key=api_key
+# Create vectorstore ChromaDB using embeddings
+db = Chroma.from_documents(
+    docs,
+    embedding=embeddings,
+    persist_directory='emb'
 )
+
+# Search similarities with score - add k=1 as argument to get the most relevant, but the result
+# won't be a tuple anymore, so the for loop needs to be modified - use .similarity_search() argument
+results = db.similarity_search(
+    'What is an interesting fact about the English language?',
+    k=1
+    )
+
+# Print results
+for result in results:
+    print('\n')
+    #print(result[1])      for .similarity_search_with_score()
+    print(result.page_content)
+
+
 
