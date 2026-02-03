@@ -27,7 +27,9 @@ text_splitter = CharacterTextSplitter(
 
 # Load .txt with Langchain and show the split results
 loader = TextLoader('facts.txt')
-docs = loader.load_and_split()
+docs = loader.load_and_split(
+    text_splitter=text_splitter
+)
 
 # Create vectorstore ChromaDB using embeddings
 db = Chroma.from_documents(

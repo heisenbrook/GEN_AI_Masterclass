@@ -41,7 +41,7 @@ chat = ChatOpenAI(
 # This is a piece of "glue code" in order to let Chroma DB and retrievalQA to "speak"
 # to each other
 
-# retriever = db.as_retriever() - let's use our custom retriever
+# retriever = db.as_retriever() 
 
 retriever = RedundantFilterRetriever(
     embeddings=embeddings,
