@@ -3,3 +3,5 @@ langchain==0.0.352
 langchain-openai==0.0.5
 tiktoken
 chromadb
+matplotlib
+pyboxen
