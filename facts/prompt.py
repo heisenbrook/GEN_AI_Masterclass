@@ -1,4 +1,5 @@
 from redundant_filter_retriever import RedundantFilterRetriever
+from langchain.globals import set_debug
 from langchain.vectorstores.chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain.chains import RetrievalQA
@@ -11,8 +12,11 @@ import os
 # this file will load the file, parse it and load it into chroma.
 # ==========================================================================================
 
+# Debug to see results query
+set_debug(True)
+
 # Load API KEY
-load_dotenv('/workspaces/GEN_AI_Masterclass/.env', override=True)
+load_dotenv('/workspaces/GEN_AI_Masterclass/.env')
 print('COURSE_KEY present?', os.getenv('COURSE_KEY') is not None)
 
 api_key = os.getenv('COURSE_KEY')

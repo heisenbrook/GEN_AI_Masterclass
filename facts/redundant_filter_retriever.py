@@ -1,9 +1,6 @@
-from typing import Any, Dict, List
 from langchain.embeddings.base import Embeddings
 from langchain.vectorstores.chroma import Chroma
 from langchain.schema import BaseRetriever
-from langchain_core.callbacks.manager import CallbackManagerForRetrieverRun
-from langchain_core.documents import Document
 
 class RedundantFilterRetriever(BaseRetriever):
     # Objects for the class - no need to "hard-code" them
@@ -11,7 +8,7 @@ class RedundantFilterRetriever(BaseRetriever):
     embeddings: Embeddings
     chroma: Chroma
 
-    def get_relevant_documents(self, query: str ): 
+    def _get_relevant_documents(self, query: str): 
         '''
         Docstring for get_relevant_documents:
         1.Calculate embeddings for 'query' string
@@ -20,14 +17,15 @@ class RedundantFilterRetriever(BaseRetriever):
         emb = self.embeddings.embed_query(query)
 
         return self.chroma.max_marginal_relevance_search_by_vector(
+            k=4,
+            fetch_k=60,
             embedding=emb,
-            lambda_mult=0.8
+            lambda_mult=0.8,
         )
     
-    async def aget_relevant_documents(self):
-        return []
+    async def aget_relevant_documents(self, query: str):
+        return self._get_relevant_documents(query)
 
-    def _get_relevant_documents(self, query: str, *, run_manager: CallbackManagerForRetrieverRun) -> List[Document]:
-        raise NotImplementedError
+
 
     

@@ -6,7 +6,7 @@ from langchain.vectorstores.chroma import Chroma
 from dotenv import load_dotenv
 
 # Load API KEY
-load_dotenv('/workspaces/GEN_AI_Masterclass/.env', override=True)
+load_dotenv('/workspaces/GEN_AI_Masterclass/.env')
 print('COURSE_KEY present?', os.getenv('COURSE_KEY') is not None)
 
 api_key = os.getenv('COURSE_KEY')
@@ -39,9 +39,8 @@ db = Chroma.from_documents(
 # Search similarities with score - add k=1 as argument to get the most relevant, but the result
 # won't be a tuple anymore, so the for loop needs to be modified - use .similarity_search() argument
 results = db.similarity_search(
-    'What is an interesting fact about the English language?',
-    k=1
-    )
+    'What is an interesting fact about the English language?'
+)
 
 # Print results
 for result in results:
