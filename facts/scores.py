@@ -39,7 +39,7 @@ def plot(data, words):
                         ha="center", va="center")
 
     fig.tight_layout()
-    plt.show()
+    plt.savefig('scores.png')
 
 
 
