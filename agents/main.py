@@ -1,8 +1,9 @@
 import os
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
+from langchain.schema import SystemMessage
 from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
-from tools.sql import run_query_tool
+from tools.sql import run_query_tool, describe_tables_tool ,list_tables
 from dotenv import load_dotenv
 
 
@@ -18,11 +19,13 @@ chat = ChatOpenAI(
     api_key=api_key
 )
 
-tools = [run_query_tool]
+tools = [run_query_tool, describe_tables_tool]
 
+tables = list_tables()
 prompt = ChatPromptTemplate(
     input_variables=['input'],
     messages=[
+        SystemMessage(content=f'You are an AI that has access to a SQLite database.\n{tables}'),
         HumanMessagePromptTemplate.from_template('{input}'),
         MessagesPlaceholder(variable_name='agent_scratchpad') # Very similar to memory
     ]
@@ -49,5 +52,10 @@ agent_executor = AgentExecutor(
 # but they are all doing the same thing behind the scenes
 
 # Execution
-agent_executor('How many users are in the database?')
+# agent_executor('How many users are in the database?') # This will run
 
+agent_executor('How many users have provided a shipping address?') # This will fail - with this prompt, 
+                                                                   # the model doesn't know the structure of
+                                                                   # our database and will fail -
+                                                                   # UPDATE: sql.py adjusted to handle this.
+                                                                   
