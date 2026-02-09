@@ -4,6 +4,7 @@ from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage
 from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
 from tools.sql import run_query_tool, describe_tables_tool ,list_tables
+from tools.report import write_report_tool 
 from dotenv import load_dotenv
 
 
@@ -19,13 +20,20 @@ chat = ChatOpenAI(
     api_key=api_key
 )
 
-tools = [run_query_tool, describe_tables_tool]
+tools = [run_query_tool, 
+         describe_tables_tool,
+         write_report_tool]
 
 tables = list_tables()
 prompt = ChatPromptTemplate(
     input_variables=['input'],
     messages=[
-        SystemMessage(content=f'You are an AI that has access to a SQLite database.\n{tables}'),
+        SystemMessage(content=(
+            f"You are an AI that has access to a SQLite database.\n"
+            f"The database has tables of: {tables}\n"
+            f"Do not make any assumptions about what tables exist "
+            f"or what columns exist. Instead use the 'describe_tables' function"
+        )),
         HumanMessagePromptTemplate.from_template('{input}'),
         MessagesPlaceholder(variable_name='agent_scratchpad') # Very similar to memory
     ]
@@ -54,8 +62,10 @@ agent_executor = AgentExecutor(
 # Execution
 # agent_executor('How many users are in the database?') # This will run
 
-agent_executor('How many users have provided a shipping address?') # This will fail - with this prompt, 
+# agent_executor('How many users have provided a shipping address?') # This will fail - with this prompt, 
                                                                    # the model doesn't know the structure of
                                                                    # our database and will fail -
                                                                    # UPDATE: sql.py adjusted to handle this.
+
+agent_executor("Summarize the top 5 most popular products. Write the results to a report file.")
                                                                    
