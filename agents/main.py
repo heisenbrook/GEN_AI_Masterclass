@@ -3,8 +3,10 @@ from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, Me
 from langchain_openai import ChatOpenAI
 from langchain.schema import SystemMessage
 from langchain.agents import OpenAIFunctionsAgent, AgentExecutor
+from langchain.memory import ConversationBufferMemory
 from tools.sql import run_query_tool, describe_tables_tool ,list_tables
 from tools.report import write_report_tool 
+from handlers.chat_model_start_handler import ChatModelStartHandler
 from dotenv import load_dotenv
 
 
@@ -16,8 +18,20 @@ api_key = os.getenv('COURSE_KEY')
 
 # Import chat model, prompt template and agent executor to perform queries and retrieve answers
 # =============================================================================================
+
+# Handlers
+handler = ChatModelStartHandler()
+
+# Chatmodel
 chat = ChatOpenAI(
-    api_key=api_key
+    api_key=api_key,
+    callbacks=[handler]
+)
+
+# Memory
+memory = ConversationBufferMemory(
+    memory_key='chat_history', 
+    return_messages=True
 )
 
 tools = [run_query_tool, 
@@ -34,8 +48,9 @@ prompt = ChatPromptTemplate(
             f"Do not make any assumptions about what tables exist "
             f"or what columns exist. Instead use the 'describe_tables' function"
         )),
+        MessagesPlaceholder(variable_name='chat_history'), # Real memory - before any human message
         HumanMessagePromptTemplate.from_template('{input}'),
-        MessagesPlaceholder(variable_name='agent_scratchpad') # Very similar to memory
+        MessagesPlaceholder(variable_name='agent_scratchpad') # Very similar to memory - dumped after every call of agent_executor
     ]
 ) 
 
@@ -52,8 +67,9 @@ agent = OpenAIFunctionsAgent(
 # Essentially a fancy while-loop.
 agent_executor = AgentExecutor(
     agent=agent,
-    verbose=True,
-    tools=tools
+    # verbose=True, no need for verbose=True is handler is present
+    tools=tools,
+    memory=memory
 )
 
 # IMPORTANT - docs show several different ways to create Agent + AgentExecutor
@@ -67,5 +83,11 @@ agent_executor = AgentExecutor(
                                                                    # our database and will fail -
                                                                    # UPDATE: sql.py adjusted to handle this.
 
-agent_executor("Summarize the top 5 most popular products. Write the results to a report file.")
+# agent_executor("Summarize the top 5 most popular products. Write the results to a report file.") - top_popular_products_report.html
+
+# agent_executor("How many orders are there? Write the result to an html report.") - order_report.html
+# agent_executor("Repeat the exact same process for users.") 
+
+agent_executor("How many orders are there? Write the result to an html report.") # order_report.html and users_report.html
+agent_executor("Repeat the exact same process for users.") 
                                                                    
